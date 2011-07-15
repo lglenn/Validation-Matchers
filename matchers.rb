@@ -26,30 +26,34 @@ module MyMatchers
       self
     end
 
+    def and_is
+      self
+    end
+
     def greater_than(value)
       @floor = value
       @lower_limit = true
-      @description << "is greater than #{@floor}"
+      @description << "greater than #{@floor}"
       @tests << lambda { disallows_value_of(@floor) && allows_value_of(@floor + 1) }
       self
     end
 
     def greater_than_or_equal_to(value)
       @floor = value
-      @description << "is greater than or equal to #{@floor}"
+      @description << "greater than or equal to #{@floor}"
       @tests << lambda { disallows_value_of(@floor - 1) && allows_value_of(@floor) && allows_value_of(@floor + 1) }
       self
     end
 
     def an_integer
       @float = false
-      @description << "is an integer"
+      @description << "an integer"
       @tests << lambda { disallows_value_of(@floor + 0.1) && allows_value_of(((@floor + @cieling)/2).to_i) }
       self
     end
 
     def description
-      "ensure that value of #{@attribute} is #{@description.join("and")}"
+      "ensure that value of #{@attribute} is #{@description.join(" and is ")}"
     end
 
     def failure_message
