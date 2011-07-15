@@ -39,6 +39,10 @@ class Slug
     return @errors
   end
 
+  def to_s
+    "slug"
+  end
+
 end
 
 describe Slug do
@@ -68,6 +72,13 @@ describe Slug do
     subject { Slug.new(lambda { |field| field == 5 }) }
     describe "field must equal 5" do
       it { should ensure_value_of(:field).is.equal_to(5) }
+    end
+  end
+
+  context "test: field is odd" do
+    subject { Slug.new(lambda { |field| field % 2 == 1 }) }
+    describe "field must be odd" do
+      it { should ensure_value_of(:field).is.odd }
     end
   end
 

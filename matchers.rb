@@ -17,6 +17,7 @@ module MyMatchers
       @floor = 0
       @cieling = 100
       @lower_limit = @upper_limt = false
+      @locked_floor = @locked_cieling = false
       @tests = []
     end
 
@@ -38,12 +39,34 @@ module MyMatchers
     def equal_to(value)
       @floor = value
       @description << "equal to #{@floor}"
-      @tests << lambda {  allows_value_of(@floor) && disallows_value_of(@floor + 1) && disallows_value_of(@floor - 1) }
+      @tests << lambda {
+        i = @floor
+        if @floor % 2 == 1
+          i = @floor + 1
+        end
+        allows_value_of(@floor) && disallows_value_of(@floor + 1) && disallows_value_of(@floor - 1) }
+      self
+    end
+
+    def odd
+      @description << "odd"
+      @tests << lambda {
+        odd = @floor.to_i
+        if odd % 2 == 0
+          odd += 1
+        end
+        if !fits_under(odd)
+          return false
+        end
+        even = fits_under(odd + 1) ? odd + 1 : nil
+        allows_value_of(odd) && (!even || disallows_value_of(even))
+      }
       self
     end
 
     def greater_than(value)
       @floor = value
+      @locked_floor = true
       @lower_limit = true
       @description << "greater than #{@floor}"
       @tests << lambda { disallows_value_of(@floor) && allows_value_of(@floor + 1) }
@@ -52,6 +75,7 @@ module MyMatchers
 
     def greater_than_or_equal_to(value)
       @floor = value
+      @locked_floor = true
       @description << "greater than or equal to #{@floor}"
       @tests << lambda { disallows_value_of(@floor - 1) && allows_value_of(@floor) && allows_value_of(@floor + 1) }
       self
@@ -94,6 +118,15 @@ module MyMatchers
       @subject.send("#{@attribute}=",value)
       @subject.valid?
       not @subject.errors[@attribute].blank?
+    end
+
+    def fits_under(val)
+      if (val > @cieling) && @locked_cieling
+        return false
+      elsif (val == @cieling) && @upper_limit
+        return false
+      end
+      return true
     end
 
   end
