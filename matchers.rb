@@ -64,6 +64,22 @@ module MyMatchers
       self
     end
 
+    def even
+      @description << "even"
+      @tests << lambda {
+        even = @floor.to_i
+        if even % 2 == 1
+          even += 1
+        end
+        if !fits_under(even)
+          return false
+        end
+        odd = fits_under(even + 1) ? even + 1 : nil
+        allows_value_of(even) && (!odd || disallows_value_of(odd))
+      }
+      self
+    end
+
     def greater_than(value)
       @floor = value
       @locked_floor = true

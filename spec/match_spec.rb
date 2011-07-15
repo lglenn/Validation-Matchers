@@ -82,6 +82,13 @@ describe Slug do
     end
   end
 
+  context "test: field is even" do
+    subject { Slug.new(lambda { |field| field % 2 == 0 }) }
+    describe "field must be even" do
+      it { should ensure_value_of(:field).is.even }
+    end
+  end
+
   context "test: field is an integer greater than or equal to 1" do
     subject { Slug.new(lambda { |field| (field >= 1) && (field.to_i == field)}) }
     describe "field must be gt 1" do
