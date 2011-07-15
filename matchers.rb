@@ -1,16 +1,17 @@
 module MyMatchers
 
-  def ensure_value_is
-    EnsureValueIsMatcher.new
+  def ensure_value_of(attr)
+    EnsureValueIsMatcher.new(attr)
   end
 
-  def ensures_value_is
-    ensure_value_is
+  def ensures_value_is(attr)
+    ensure_value_is(attr)
   end
 
   class EnsureValueIsMatcher
 
-    def initialize
+    def initialize(attr)
+      @attribute = attr
       @float = true
       @description = []
       @floor = 0
@@ -23,6 +24,10 @@ module MyMatchers
       if message
         @message = message
       end
+      self
+    end
+
+    def is
       self
     end
 
@@ -65,11 +70,6 @@ module MyMatchers
 
     def failure_message
       "Failed because #{@subject} #{@failed_because} for #{@attribute}"
-    end
-
-    def for_attr(attribute)
-      @attribute = attribute
-      self
     end
 
     def matches?(subject)
