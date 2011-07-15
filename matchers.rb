@@ -30,6 +30,13 @@ module MyMatchers
       self
     end
 
+    def equal_to(value)
+      @floor = value
+      @description << "equal to #{@floor}"
+      @tests << lambda {  allows_value_of(@floor) && disallows_value_of(@floor + 1) && disallows_value_of(@floor - 1) }
+      self
+    end
+
     def greater_than(value)
       @floor = value
       @lower_limit = true

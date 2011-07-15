@@ -64,6 +64,14 @@ describe Slug do
     end
   end
 
+
+  context "test: field is equal to 5" do
+    subject { Slug.new(lambda { |field| field == 5 }) }
+    describe "field must equal 5" do
+      it { should ensure_value_is.equal_to(5).for_attr(:field) }
+    end
+  end
+
   context "test: field is an integer greater than or equal to 1" do
     subject { Slug.new(lambda { |field| (field >= 1) && (field.to_i == field)}) }
     describe "field must be gt 1" do
