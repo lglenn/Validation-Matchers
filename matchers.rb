@@ -57,7 +57,7 @@ module MyMatchers
     end
 
     def failure_message
-      "NEED TO FILL IN FAIL MSG"
+      "Failed because #{@subject} #{@failed_because} for #{@attribute}"
     end
 
     def for_attr(attribute)
@@ -76,14 +76,14 @@ module MyMatchers
     private
 
     def allows_value_of(value)
-      @modifier = 'not '
+      @failed_because = "did not allow a value of #{value}"
       @subject.send("#{@attribute}=",value)
       @subject.valid?
       @subject.errors[@attribute].blank?
     end
 
     def disallows_value_of(value)
-      @modifier = ''
+      @failed_because = "allowed a value of #{value}"
       @subject.send("#{@attribute}=",value)
       @subject.valid?
       not @subject.errors[@attribute].blank?
