@@ -39,44 +39,19 @@ module MyMatchers
     def equal_to(value)
       @floor = value
       @description << "equal to #{@floor}"
-      @tests << lambda {
-        i = @floor
-        if @floor % 2 == 1
-          i = @floor + 1
-        end
-        allows_value_of(@floor) && disallows_value_of(@floor + 1) && disallows_value_of(@floor - 1) }
+      @tests << lambda { allows_value_of(@floor) && disallows_value_of(@floor + 1) && disallows_value_of(@floor - 1) }
       self
     end
 
     def odd
       @description << "odd"
-      @tests << lambda {
-        odd = @floor.to_i
-        if odd % 2 == 0
-          odd += 1
-        end
-        if !fits_under(odd)
-          return false
-        end
-        even = fits_under(odd + 1) ? odd + 1 : nil
-        allows_value_of(odd) && (!even || disallows_value_of(even))
-      }
+      @tests << lambda { allows_value_of(odd_val) && disallows_value_of(even_val) }
       self
     end
 
     def even
       @description << "even"
-      @tests << lambda {
-        even = @floor.to_i
-        if even % 2 == 1
-          even += 1
-        end
-        if !fits_under(even)
-          return false
-        end
-        odd = fits_under(even + 1) ? even + 1 : nil
-        allows_value_of(even) && (!odd || disallows_value_of(odd))
-      }
+      @tests << lambda { allows_value_of(even_val) && disallows_value_of(odd_val) }
       self
     end
 
@@ -122,6 +97,26 @@ module MyMatchers
 
     private
 
+    def odd_val
+      odd = int_val
+      if odd % 2 == 0
+        odd += 1
+      end
+      odd
+    end
+
+    def even_val
+      even = int_val
+      if even % 2 == 1
+        even += 1
+      end
+      even
+    end
+
+    def int_val
+      safe_floor.to_i
+    end
+
     def allows_value_of(value)
       @failed_because = "did not allow a value of #{value}"
       @subject.send("#{@attribute}=",value)
@@ -136,13 +131,14 @@ module MyMatchers
       not @subject.errors[@attribute].blank?
     end
 
-    def fits_under(val)
-      if (val > @cieling) && @locked_cieling
-        return false
-      elsif (val == @cieling) && @upper_limit
-        return false
+    def safe_floor
+      if @dirty_floor
+        return @floor
+      elsif @dirty_cieling && @cieling < @floor
+        return @cieling - 100
+      else
+        return @floor
       end
-      return true
     end
 
   end
