@@ -62,8 +62,7 @@ module MyMatchers
 
     def equal_to(value)
       self.floor = value
-      @description << "equal to #{@floor}"
-      test "equal_to" do
+      test "is equal to #{@floor}" do
         allows_value_of(self.floor) && disallows_value_of(gt_floor) && disallows_value_of(self.floor - 1)
       end
       self
@@ -71,7 +70,6 @@ module MyMatchers
 
     def odd
       @odd = true
-      @description << "odd"
       test "is odd" do
         allows_value_of(odd_val) && disallows_value_of(even_val)
       end
@@ -80,7 +78,6 @@ module MyMatchers
 
     def even
       @even = true
-      @description << "even"
       test "is even" do
         allows_value_of(even_val) && disallows_value_of(odd_val)
       end
@@ -90,8 +87,7 @@ module MyMatchers
     def greater_than(value)
       self.floor = value
       @lower_limit = true
-      @description << "greater than #{@floor}"
-      test "greater than" do
+      test "is greater than #{@floor}" do
         disallows_value_of(self.floor) && allows_value_of(gt_floor)
       end
       self
@@ -100,8 +96,7 @@ module MyMatchers
     def less_than(value)
       self.cieling = value
       @lower_limit = true
-      @description << "less than #{cieling}"
-      test "less than" do
+      test "is less than #{cieling}" do
         disallows_value_of(cieling) && allows_value_of(lt_cieling)
       end
       self
@@ -109,8 +104,7 @@ module MyMatchers
 
     def greater_than_or_equal_to(value)
       self.floor = value
-      @description << "greater than or equal to #{@floor}"
-      test "greater than or equal to" do
+      test "is greater than or equal to #{@floor}" do
         disallows_value_of(self.floor - 1) && allows_value_of(self.floor) && allows_value_of(gt_floor)
       end
       self
@@ -118,8 +112,7 @@ module MyMatchers
 
     def less_than_or_equal_to(value)
       self.cieling = value
-      @description << "less than or equal to #{self.cieling}"
-      test "less than or equal to" do
+      test "is less than or equal to #{self.cieling}" do
         disallows_value_of(self.cieling + 1) && allows_value_of(self.cieling) && allows_value_of(lt_cieling)
       end
       self
@@ -127,8 +120,7 @@ module MyMatchers
 
     def an_integer
       @float = false
-      @description << "an integer"
-      test "an integer" do
+      test "is an integer" do
         disallows_value_of(int_val + 0.001) && allows_value_of(int_val)
       end
       self
@@ -156,6 +148,7 @@ module MyMatchers
     private
 
     def test(description,&test)
+      @description << description
       @tests[description] = test
     end
 
