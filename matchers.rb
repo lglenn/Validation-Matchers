@@ -16,7 +16,6 @@ module MyMatchers
     def initialize(attr)
       @attribute = attr
       @float = true
-      @description = []
       @floor = 0
       @cieling = 100
       @even = @odd = false
@@ -127,7 +126,7 @@ module MyMatchers
     end
 
     def description
-      "ensure that value of #{@attribute} is #{@description.join(" and is ")}"
+      "ensure that value of #{@attribute} is #{@tests.keys.join(" and is ")}"
     end
 
     def failure_message
@@ -148,7 +147,6 @@ module MyMatchers
     private
 
     def test(description,&test)
-      @description << description
       @tests[description] = test
     end
 
