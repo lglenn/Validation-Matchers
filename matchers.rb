@@ -22,7 +22,7 @@ module MyMatchers
       @even = @odd = false
       @lower_limit = @upper_limt = false
       @locked_floor = @locked_cieling = false
-      @tests = []
+      @tests = {}
     end
 
     def cieling
@@ -63,21 +63,27 @@ module MyMatchers
     def equal_to(value)
       self.floor = value
       @description << "equal to #{@floor}"
-      @tests << lambda { @test = "equal_to"; allows_value_of(self.floor) && disallows_value_of(gt_floor) && disallows_value_of(self.floor - 1) }
+      add_test "equal_to" do
+        allows_value_of(self.floor) && disallows_value_of(gt_floor) && disallows_value_of(self.floor - 1)
+      end
       self
     end
 
     def odd
       @odd = true
       @description << "odd"
-      @tests << lambda { @test = "is odd"; allows_value_of(odd_val) && disallows_value_of(even_val) }
+      add_test "is odd" do
+        allows_value_of(odd_val) && disallows_value_of(even_val)
+      end
       self
     end
 
     def even
       @even = true
       @description << "even"
-      @tests << lambda { @test = "is even"; allows_value_of(even_val) && disallows_value_of(odd_val) }
+      add_test "is even" do
+        allows_value_of(even_val) && disallows_value_of(odd_val)
+      end
       self
     end
 
@@ -85,7 +91,9 @@ module MyMatchers
       self.floor = value
       @lower_limit = true
       @description << "greater than #{@floor}"
-      @tests << lambda { @test = "greater than"; disallows_value_of(self.floor) && allows_value_of(gt_floor) }
+      add_test "greater than" do
+        disallows_value_of(self.floor) && allows_value_of(gt_floor)
+      end
       self
     end
 
@@ -93,28 +101,36 @@ module MyMatchers
       self.cieling = value
       @lower_limit = true
       @description << "less than #{cieling}"
-      @tests << lambda { @test = "less than"; disallows_value_of(cieling) && allows_value_of(lt_cieling) }
+      add_test "less than" do
+        disallows_value_of(cieling) && allows_value_of(lt_cieling)
+      end
       self
     end
 
     def greater_than_or_equal_to(value)
       self.floor = value
       @description << "greater than or equal to #{@floor}"
-      @tests << lambda { @test = "greater than or equal to"; disallows_value_of(self.floor - 1) && allows_value_of(self.floor) && allows_value_of(gt_floor) }
+      add_test "greater than or equal to" do
+        disallows_value_of(self.floor - 1) && allows_value_of(self.floor) && allows_value_of(gt_floor)
+      end
       self
     end
 
     def less_than_or_equal_to(value)
       self.cieling = value
       @description << "less than or equal to #{self.cieling}"
-      @tests << lambda { @test = "less than or equal to"; disallows_value_of(self.cieling + 1) && allows_value_of(self.cieling) && allows_value_of(lt_cieling) }
+      add_test "less than or equal to" do
+        disallows_value_of(self.cieling + 1) && allows_value_of(self.cieling) && allows_value_of(lt_cieling)
+      end
       self
     end
 
     def an_integer
       @float = false
       @description << "an integer"
-      @tests << lambda { @test = "an integer"; disallows_value_of(int_val + 0.001) && allows_value_of(int_val) }
+      add_test "an integer" do
+        disallows_value_of(int_val + 0.001) && allows_value_of(int_val)
+      end
       self
     end
 
@@ -128,13 +144,20 @@ module MyMatchers
 
     def matches?(subject)
       @subject = subject
-      @tests.each do |test|
-        return false if !test.call
+      @tests.each do |description, test|
+        if !test.call
+          @test = description
+          return false
+        end
       end
       return true
     end
 
     private
+
+    def add_test(description,&test)
+      @tests[description] = test
+    end
 
     def odd_val
       odd = an_int
