@@ -110,4 +110,11 @@ describe Slug do
     end
   end
 
+  context "validates field is an even integer greater than or equal to 2" do
+    subject { Slug.new(lambda { |field| (field >= 2) && field.to_i == field && field.to_i.even? }) }
+    describe "field must be even integer gte 2" do
+      it { should ensure_value_of(:field).is.even.and_is.an_integer.and_is.greater_than_or_equal_to(2) }
+    end
+  end
+
 end
