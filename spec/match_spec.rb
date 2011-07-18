@@ -1,5 +1,5 @@
 require 'rspec'
-require 'matchers.rb'
+require 'validation_matchers.rb'
 
 RSpec.configure do |config|
   config.include ValidationMatchers
