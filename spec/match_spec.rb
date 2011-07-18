@@ -2,7 +2,7 @@ require 'rspec'
 require 'matchers.rb'
 
 RSpec.configure do |config|
-  config.include MyMatchers
+  config.include ValidationMatchers
 end
 
 class Error

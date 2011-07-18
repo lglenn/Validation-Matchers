@@ -1,4 +1,4 @@
-module MyMatchers
+module ValidationMatchers
 
   def ensure_value_of(attr)
     EnsureValueIsMatcher.new(attr)
