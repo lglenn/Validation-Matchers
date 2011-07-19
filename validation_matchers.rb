@@ -15,6 +15,7 @@ module ValidationMatchers
       @floor = 0
       @cieling = 100
       @even = @odd = false
+      @upper_limit = @lower_limit = false
       @locked_floor = @locked_cieling = false
       @tests = {}
     end
@@ -113,6 +114,7 @@ module ValidationMatchers
 
     def greater_than(value)
       self.floor = value
+      @lower_limit = true
       test "is greater than #{@floor}" do
         disallows_value_of(self.floor) && allows_value_of(gt_floor)
       end
@@ -121,6 +123,7 @@ module ValidationMatchers
 
     def less_than(value)
       self.cieling = value
+      @upper_limit = true
       test "is less than #{cieling}" do
         disallows_value_of(cieling) && allows_value_of(lt_cieling)
       end
@@ -185,7 +188,7 @@ module ValidationMatchers
     end
 
     def an_int
-      self.cieling.to_i
+      @upper_limit ? self.cieling.to_i - 1 : self.cieling.to_i
     end
 
     def int_val

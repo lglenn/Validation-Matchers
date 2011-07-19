@@ -117,4 +117,32 @@ describe Slug do
     end
   end
 
+  context "validates field is an odd integer less than -3" do
+    subject { Slug.new(lambda { |field| (field < -3) && field.to_i == field && field.to_i.odd? }) }
+    describe "field must be odd integer lt -3" do
+      it { should ensure_value_of(:field).is.odd.and_is.an_integer.and_is.less_than(-3) }
+    end
+  end
+
+  context "validates field is an odd integer greater than -3" do
+    subject { Slug.new(lambda { |field| (field > -3) && field.to_i == field && field.to_i.odd? }) }
+    describe "field must be odd integer gt -3" do
+      it { should ensure_value_of(:field).is.odd.and_is.an_integer.and_is.greater_than(-3) }
+    end
+  end
+
+  context "validates field is an odd integer greater than -2" do
+    subject { Slug.new(lambda { |field| (field > -2) && field.to_i == field && field.to_i.odd? }) }
+    describe "field must be odd integer gt -2" do
+      it { should ensure_value_of(:field).is.odd.and_is.an_integer.and_is.greater_than(-2) }
+    end
+  end
+
+  context "validates field is an odd integer less than -2" do
+    subject { Slug.new(lambda { |field| (field < -2) && field.to_i == field && field.to_i.odd? }) }
+    describe "field must be odd integer lt -2" do
+      it { should ensure_value_of(:field).is.odd.and_is.an_integer.and_is.less_than(-2) }
+    end
+  end
+
 end
