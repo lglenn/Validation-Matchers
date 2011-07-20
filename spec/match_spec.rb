@@ -17,9 +17,9 @@ end
 
 class Slug
 
-  def initialize(test)
-    @test = test
-    @errors = { }
+  def initialize
+    @tests = []
+    @errors = {}
   end
 
   def field
@@ -30,9 +30,54 @@ class Slug
       @field = val
   end
 
+  def +(test)
+    @tests << test
+  end
+
+  def gt(val)
+    @tests << lambda { |field| field > val }
+    self
+  end
+
+  def lt(val)
+    @tests << lambda { |field| field < val }
+    self
+  end
+
+  def gte(val)
+    @tests << lambda { |field| field >= val }
+    self
+  end
+
+  def lte(val)
+    @tests << lambda { |field| field <= val }
+    self
+  end
+
+  def int
+    @tests << lambda { |field| field.to_i == field }
+    self
+  end
+
+  def odd
+    @tests << lambda { |field| field.to_i.odd? }
+    self
+  end
+
+  def even
+    @tests << lambda { |field| field.to_i.even? }
+    self
+  end
+
   def valid?
-    ret = @test.call @field
-    @errors[:field] = Error.new(ret)
+    ok = true
+    @tests.each do |test|
+      if !test.call @field
+        ok = false
+        break
+      end
+    end
+    @errors[:field] = Error.new(ok)
   end
 
   def errors
@@ -47,101 +92,162 @@ end
 
 describe Slug do
 
-  context "validates field is greater than 1" do
-    subject { Slug.new(lambda { |field| field > 1 }) }
-    describe "field must be gt 1" do
-      it { should ensure_value_of(:field).is.greater_than(1) }
+  before(:each) do
+    @floor = 1
+    @cieling = 100
+    @slug = Slug.new
+  end
+
+  context "greater than" do
+    subject { @slug.gt(@floor) }
+    describe "just greater than" do
+      it { should ensure_value_of(:field).is.greater_than(@floor) }
+    end
+    describe "an integer" do
+      subject { @slug.gt(@floor).int }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.an_integer }
+    end
+    describe "even" do
+      subject { @slug.gt(@floor).even }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.even }
+    end
+    describe "odd" do
+      subject { @slug.gt(@floor).odd }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.odd }
+    end
+    describe "lt" do
+      subject { @slug.gt(@floor).lt(@cieling) }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.less_than(@cieling) }
+    end
+    describe "lte" do
+      subject { @slug.gt(@floor).lte(@cieling) }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.less_than_or_equal_to(@cieling) }
+    end
+    describe "lt and odd" do
+      subject { @slug.gt(@floor).lt(@cieling).odd }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.less_than(@cieling).and_is.odd }
+    end
+    describe "lt and even" do
+      subject { @slug.gt(@floor).lt(@cieling).even }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.less_than(@cieling).and_is.even }
+    end
+    describe "lte and odd" do
+      subject { @slug.gt(@floor).lte(@cieling).odd }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.less_than_or_equal_to(@cieling-1).and_is.odd }
+    end
+    describe "lte and even" do
+      subject { @slug.gt(@floor).lte(@cieling).even }
+      it { should ensure_value_of(:field).is.greater_than(@floor).and_is.less_than_or_equal_to(@cieling).and_is.even }
     end
   end
 
-  context "validates field is less than 1" do
-    subject { Slug.new(lambda { |field| field < 1 }) }
-    describe "field must be lt 1" do
-      it { should ensure_value_of(:field).is.less_than(1) }
+  context "less than" do
+    subject { @slug.lt(@cieling) }
+    describe "just less than" do
+      it { should ensure_value_of(:field).is.less_than(@cieling) }
+    end
+    describe "an integer" do
+      subject { @slug.lt(@cieling).int }
+      it { should ensure_value_of(:field).is.less_than(@cieling).and_is.an_integer }
+    end
+    describe "even" do
+      subject { @slug.lt(@cieling).even }
+      it { should ensure_value_of(:field).is.less_than(@cieling).and_is.even }
+    end
+    describe "odd" do
+      subject { @slug.lt(@cieling).odd }
+      it { should ensure_value_of(:field).is.less_than(@cieling).and_is.odd }
+    end
+    describe "gte and odd" do
+      subject { @slug.gte(@floor).lt(@cieling).odd }
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor).and_is.less_than(@cieling).and_is.odd }
+    end
+    describe "gte and even" do
+      subject { @slug.gte(@floor + 1).lt(@cieling).even }
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor + 1).and_is.less_than(@cieling).and_is.even }
     end
   end
 
-  context "validates field is greater than or equal to 1" do
-    subject { Slug.new(lambda { |field| field >= 1 }) }
-    describe "field must be gte 1" do
-      it { should ensure_value_of(:field).is.greater_than_or_equal_to(1) }
+  context "greater than or equal to" do
+    subject { @slug.gte(@floor) }
+    describe "just greater than or equal to" do
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor) }
+    end
+    describe "an integer" do
+      subject { @slug.gte(@floor).int }
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor).and_is.an_integer }
+    end
+    describe "even" do
+      subject { @slug.gte(@floor).even }
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor + 1).and_is.even }
+    end
+    describe "odd" do
+      subject { @slug.gte(@floor).odd }
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor).and_is.odd }
+    end
+    describe "lte" do
+      subject { @slug.gte(@floor).lte(@cieling) }
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor).and_is.less_than_or_equal_to(@cieling) }
+    end
+    describe "lte and odd" do
+      subject { @slug.gte(@floor).lte(@cieling).odd }
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor).and_is.less_than_or_equal_to(@cieling-1).and_is.odd }
+    end
+    describe "lte and even" do
+      subject { @slug.gte(@floor).lte(@cieling).even }
+      it { should ensure_value_of(:field).is.greater_than_or_equal_to(@floor + 1).and_is.less_than_or_equal_to(@cieling).and_is.even }
     end
   end
 
-  context "validates field is less than or equal to 1" do
-    subject { Slug.new(lambda { |field| field <= 1 }) }
-    describe "field must be lte 1" do
-      it { should ensure_value_of(:field).is.less_than_or_equal_to(1) }
+  context "less than or equal to" do
+    subject { @slug.lte(@cieling) }
+    describe "just less than or equal to" do
+      it { should ensure_value_of(:field).is.less_than_or_equal_to(@cieling) }
+    end
+    describe "an integer" do
+      subject { @slug.lte(@cieling).int }
+      it { should ensure_value_of(:field).is.less_than_or_equal_to(@cieling).and_is.an_integer }
+    end
+    describe "even" do
+      subject { @slug.lte(@cieling).even }
+      it { should ensure_value_of(:field).is.less_than_or_equal_to(@cieling).and_is.even }
+    end
+    describe "odd" do
+      subject { @slug.lte(@cieling - 1).odd }
+      it { should ensure_value_of(:field).is.less_than_or_equal_to(@cieling - 1).and_is.odd }
+    end
+    describe "gt" do
+      subject { @slug.lte(@cieling).gt(@floor) }
+      it { should ensure_value_of(:field).is.less_than_or_equal_to(@cieling).and_is.greater_than(@floor) }
     end
   end
 
-  context "validates field is an integer" do
-    subject { Slug.new(lambda { |field| field == field.to_i }) }
-    describe "field must be an integer" do
+  context "an integer" do
+    subject { @slug.int }
+    describe "just an integer" do
       it { should ensure_value_of(:field).is.an_integer }
     end
-  end
-
-  context "validates field is equal to 5" do
-    subject { Slug.new(lambda { |field| field == 5 }) }
-    describe "field must equal 5" do
-      it { should ensure_value_of(:field).is.equal_to(5) }
+    describe "even" do
+      subject { @slug.int.even }
+      it { should ensure_value_of(:field).is.an_integer.and_is.even }
+    end
+    describe "odd" do
+      subject { @slug.int.odd }
+      it { should ensure_value_of(:field).is.an_integer.and_is.odd }
     end
   end
 
-  context "validates field is odd" do
-    subject { Slug.new(lambda { |field| field % 2 == 1 }) }
-    describe "field must be odd" do
-      it { should ensure_value_of(:field).is.odd }
+  context "even" do
+    subject { @slug.even }
+    describe "just even" do
+      it {  should ensure_value_of(:field).is.even }
     end
   end
 
-  context "validates field is even" do
-    subject { Slug.new(lambda { |field| field % 2 == 0 }) }
-    describe "field must be even" do
-      it { should ensure_value_of(:field).is.even }
-    end
-  end
-
-  context "validates field is an integer greater than or equal to 1" do
-    subject { Slug.new(lambda { |field| (field >= 1) && (field.to_i == field)}) }
-    describe "field must be gt 1" do
-      it { should ensure_value_of(:field).is.an_integer.and_is.greater_than_or_equal_to(1) }
-    end
-  end
-
-  context "validates field is an even integer greater than or equal to 2" do
-    subject { Slug.new(lambda { |field| (field >= 2) && field.to_i == field && field.to_i.even? }) }
-    describe "field must be even integer gte 2" do
-      it { should ensure_value_of(:field).is.even.and_is.an_integer.and_is.greater_than_or_equal_to(2) }
-    end
-  end
-
-  context "validates field is an odd integer less than -3" do
-    subject { Slug.new(lambda { |field| (field < -3) && field.to_i == field && field.to_i.odd? }) }
-    describe "field must be odd integer lt -3" do
-      it { should ensure_value_of(:field).is.odd.and_is.an_integer.and_is.less_than(-3) }
-    end
-  end
-
-  context "validates field is an odd integer greater than -3" do
-    subject { Slug.new(lambda { |field| (field > -3) && field.to_i == field && field.to_i.odd? }) }
-    describe "field must be odd integer gt -3" do
-      it { should ensure_value_of(:field).is.odd.and_is.an_integer.and_is.greater_than(-3) }
-    end
-  end
-
-  context "validates field is an odd integer greater than -2" do
-    subject { Slug.new(lambda { |field| (field > -2) && field.to_i == field && field.to_i.odd? }) }
-    describe "field must be odd integer gt -2" do
-      it { should ensure_value_of(:field).is.odd.and_is.an_integer.and_is.greater_than(-2) }
-    end
-  end
-
-  context "validates field is an odd integer less than -2" do
-    subject { Slug.new(lambda { |field| (field < -2) && field.to_i == field && field.to_i.odd? }) }
-    describe "field must be odd integer lt -2" do
-      it { should ensure_value_of(:field).is.odd.and_is.an_integer.and_is.less_than(-2) }
+  context "odd" do
+    subject { @slug.odd }
+    describe "just odd" do
+      it {  should ensure_value_of(:field).is.odd }
     end
   end
 
