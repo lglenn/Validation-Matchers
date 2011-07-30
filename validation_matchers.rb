@@ -4,9 +4,6 @@ module ValidationMatchers
     EnsureValueIsMatcher.new(attr)
   end
 
-  class ImpossibleSpecificationError < Exception
-  end
-
   class EnsureValueIsMatcher
 
     def initialize(attr)
