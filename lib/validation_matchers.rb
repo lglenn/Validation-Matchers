@@ -112,7 +112,7 @@ module ValidationMatchers
     def greater_than(value)
       self.floor = value
       @lower_limit = true
-      test "is greater than #{@floor}" do
+      test "greater than #{@floor}" do
         disallows_value_of(self.floor) && allows_value_of(gt_floor)
       end
       self
@@ -121,7 +121,7 @@ module ValidationMatchers
     def less_than(value)
       self.cieling = value
       @upper_limit = true
-      test "is less than #{cieling}" do
+      test "less than #{cieling}" do
         disallows_value_of(cieling) && allows_value_of(lt_cieling)
       end
       self
@@ -129,7 +129,7 @@ module ValidationMatchers
 
     def greater_than_or_equal_to(value)
       self.floor = value
-      test "is greater than or equal to #{@floor}" do
+      test "greater than or equal to #{@floor}" do
         disallows_value_of(lt_floor) && allows_value_of(self.floor) && allows_value_of(gt_floor)
       end
       self
@@ -137,7 +137,7 @@ module ValidationMatchers
 
     def less_than_or_equal_to(value)
       self.cieling = value
-      test "is less than or equal to #{self.cieling}" do
+      test "less than or equal to #{self.cieling}" do
         disallows_value_of(gt_cieling) && allows_value_of(self.cieling) && allows_value_of(lt_cieling)
       end
       self
