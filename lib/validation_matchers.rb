@@ -15,6 +15,7 @@ module ValidationMatchers
       @upper_limit = @lower_limit = false
       @locked_floor = @locked_cieling = false
       @tests = {}
+      @failed_tests = []
     end
 
     def cieling
@@ -156,18 +157,19 @@ module ValidationMatchers
     end
 
     def failure_message
-      "Failed test '#{@attribute} #{@test}' because #{@subject} #{@failed_because} for it."
+      @failed_tests.join("\n")
     end
 
     def matches?(subject)
       @subject = subject
+      passing = true
       @tests.each do |description, test|
         if !test.call
-          @test = description
-          return false
+          @failed_tests << "Failed test '#{@attribute} #{description}' because #{subject} #{@failed_because} for it."
+          passing = false
         end
       end
-      return true
+      return passing
     end
 
     private
